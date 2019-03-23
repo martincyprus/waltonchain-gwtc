@@ -54,6 +54,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 
@@ -176,7 +177,14 @@ func doInstall(cmdline []string) {
 
 	// Check Go version. People regularly open issues about compilation
 	// failure with outdated Go. This should save them the trouble.
-	if runtime.Version() < "go1.7" && !strings.Contains(runtime.Version(), "devel") {
+
+	minorGoVersion, err := strconv.Atoi(strings.Split(runtime.Version(), ".")[1])
+	if err != nil {
+		log.Println("Version returned does not correspond with supported 1.7+ version.")
+		log.Println("You are running version: ", runtime.Version())
+		os.Exit(1)
+	}
+	if minorGoVersion < 7 && !strings.Contains(runtime.Version(), "devel") {
 		log.Println("You have Go version", runtime.Version())
 		log.Println("go-wtc requires at least Go version 1.7 and cannot")
 		log.Println("be compiled with an earlier version. Please upgrade your Go installation.")
